@@ -30,11 +30,20 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;touch-
 .pill{display:block;width:100%;min-height:58px;background:var(--red);color:#fff;border-radius:30px;padding:12px 18px;font-size:20px;font-weight:800;margin-bottom:16px}
 .tabs{position:sticky;top:0;z-index:4;display:flex;gap:8px;background:var(--bg);margin:0 -16px 14px;padding:8px 16px}
 .tab{flex:1;height:70px;border-radius:18px;background:#fff;border:2px solid var(--line);color:var(--ink);font-size:17px;font-weight:700;line-height:1.2}
-.tab span{display:block;font-size:24px;line-height:1.1}
+.ic{width:1.15em;height:1.15em;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.2em}
+.tab span{display:block;line-height:0}
+.tab .ic{width:27px;height:27px;margin:0 auto 4px;vertical-align:baseline}
+.empty .ic{width:46px;height:46px;color:var(--g);stroke-width:1.8;margin-bottom:10px;vertical-align:baseline}
+.add .ic{width:1.25em;height:1.25em;margin-right:8px;stroke-width:2.8;vertical-align:-.25em}
+.rl .ic{width:1.3em;height:1.3em;margin-right:4px;vertical-align:-.3em}
+.chip .ic{width:1em;height:1em;stroke-width:3;vertical-align:-.12em}
+.btns .ic{stroke-width:3;vertical-align:-.18em}
+.tm .ic{color:#9be3c0;margin-right:8px;stroke-width:3}
+.num b.r{color:var(--red)}.num b.g{color:var(--gd)}
 .tab i{font-style:normal;color:var(--mut);font-weight:700}
 .tab.on{background:var(--g);border-color:var(--gd);color:#fff}
 .tab.on i{color:#fff}
-.card{background:#FFE6CF;border:2px solid #F0C59E;border-radius:20px;padding:18px;margin-bottom:16px}
+.card{background:#FFE6CF;border:1.5px solid #F0C59E;border-radius:18px;padding:18px;margin-bottom:16px;box-shadow:0 1px 3px #5a3a1a22}
 .card.ready{border-left:8px solid var(--g)}
 .card.done{background:#BFE8D1;border-color:#7CC9A0}
 .rl{font-weight:800;color:var(--gd);font-size:18px;margin-bottom:6px}
@@ -108,7 +117,7 @@ input:focus,select:focus,textarea:focus{outline:3px solid #16875B55;border-color
 // ---------- PWA (manifest + service worker via Blob) ----------
 try{
   var c=document.createElement('canvas');
-  var ic=function(s){c.width=c.height=s;var x=c.getContext('2d');x.fillStyle='#16875B';x.fillRect(0,0,s,s);x.fillStyle='#fff';x.font='bold '+(s*.55)+'px sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText('\u2713',s/2,s/2);return c.toDataURL('image/png')};
+  var ic=function(s){c.width=c.height=s;var x=c.getContext('2d');x.fillStyle='#16875B';x.fillRect(0,0,s,s);x.strokeStyle='#fff';x.lineWidth=s*.1;x.lineCap='round';x.lineJoin='round';x.beginPath();x.moveTo(s*.27,s*.52);x.lineTo(s*.43,s*.68);x.lineTo(s*.74,s*.34);x.stroke();return c.toDataURL('image/png')};
   var m={name:'My Orders',short_name:'Orders',start_url:location.href.split('#')[0],display:'standalone',background_color:'#FFF7ED',theme_color:'#16875B',icons:[{src:ic(192),sizes:'192x192',type:'image/png'},{src:ic(512),sizes:'512x512',type:'image/png'}]};
   var l=document.createElement('link');l.rel='manifest';l.href=URL.createObjectURL(new Blob([JSON.stringify(m)],{type:'application/manifest+json'}));document.head.appendChild(l);
   var a=document.createElement('link');a.rel='apple-touch-icon';a.href=ic(180);document.head.appendChild(a);
@@ -140,19 +149,21 @@ function get(id){return orders.filter(function(o){return o.id===id})[0]}
 function buzz(){try{navigator.vibrate&&navigator.vibrate(15)}catch(e){}}
 var standalone=window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
 var ios=/iphone|ipad|ipod/i.test(navigator.userAgent);
-function toast(m,undo){var t=$('#toast');t.innerHTML='<span>'+esc(m)+'</span>'+(undo?'<button onclick="OT.undo()">Undo</button>':'');t.classList.add('on');clearTimeout(tt);tt=setTimeout(function(){t.classList.remove('on')},5000)}
+function toast(m,undo){var t=$('#toast');t.innerHTML='<span class="tm">'+ico('check')+esc(m)+'</span>'+(undo?'<button onclick="OT.undo()">Undo</button>':'');t.classList.add('on');clearTimeout(tt);tt=setTimeout(function(){t.classList.remove('on')},5000)}
 function act(id,msg,fn){var o=get(id);if(!o)return;snap=JSON.stringify(o);fn(o);save();render();buzz();toast(msg,true)}
 
 // ---------- render ----------
 var GEAR='<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>';
+var IC={todo:'<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4h6v3H9z"/><path d="M9 12h6M9 16h6"/>',ready:'<circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/>',done:'<path d="M3 12.5l4.5 4.5L15 8.5"/><path d="M11 16.5l1 1L21 8.5"/>',check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',plus:'<path d="M12 5v14M5 12h14"/>'};
+function ico(n){return '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">'+IC[n]+'</svg>'}
 function card(o){
   var ow=owes(o),pc='',pr=+o.price||0,id="'"+o.id+"'";
-  if(pr>0)pc=ow<=0?'<span class="chip ok">Paid \u2713</span>':(+o.paid>0?'<span class="chip warn">Deposit '+R(o.paid)+' \u2022 Owes '+R(ow)+'</span>':'<span class="chip bad">Not paid \u2022 Owes '+R(ow)+'</span>');
-  var h='<div class="card '+(o.status==='todo'?'':o.status)+'">'+(o.status==='ready'?'<div class="rl">\u2705 Ready for collection</div>':'')+'<div class="nm">'+esc(o.name)+'</div><div class="it">'+esc(o.item)+'</div><div class="row"><span class="pr">'+R(pr)+'</span>'+pc+'</div>';
+  if(pr>0)pc=ow<=0?'<span class="chip ok">'+ico('check')+' Paid</span>':(+o.paid>0?'<span class="chip warn">Deposit '+R(o.paid)+' \u2022 Owes '+R(ow)+'</span>':'<span class="chip bad">Not paid \u2022 Owes '+R(ow)+'</span>');
+  var h='<div class="card '+(o.status==='todo'?'':o.status)+'">'+(o.status==='ready'?'<div class="rl">'+ico('ready')+' Ready for collection</div>':'')+'<div class="nm">'+esc(o.name)+'</div><div class="it">'+esc(o.item)+'</div><div class="row"><span class="pr">'+R(pr)+'</span>'+pc+'</div>';
   h+='<div class="meta">'+(o.due?'Due '+fd(o.due)+' \u2022 ':'')+'Ordered '+fd(o.ordered)+(o.notes?'<br>'+esc(o.notes):'')+'</div>';
   var wa='<button class="lk" onclick="OT.wa('+id+')">WhatsApp</button>',ed='<button class="lk" onclick="OT.form('+id+')">Edit</button>',dl='<button class="lk del" onclick="OT.del('+id+')">Delete</button>',sp='<span class="sep">\u2022</span>';
   if(o.status==='todo'){
-    h+='<div class="btns">'+(ow>0?'<button onclick="OT.paid('+id+')">Tap Paid</button>':'<button class="mute" disabled>Paid \u2713</button>')+'<button class="alt" onclick="OT.st('+id+',\'ready\')">Mark Ready</button></div><div class="links">'+wa+sp+ed+sp+dl+'</div>';
+    h+='<div class="btns">'+(ow>0?'<button onclick="OT.paid('+id+')">Tap Paid</button>':'<button class="mute" disabled>'+ico('check')+' Paid</button>')+'<button class="alt" onclick="OT.st('+id+',\'ready\')">Mark Ready</button></div><div class="links">'+wa+sp+ed+sp+dl+'</div>';
   }else if(o.status==='ready'){
     h+='<div class="btns"><button onclick="OT.collect('+id+')">Mark Collected</button><button class="alt" onclick="OT.wa('+id+')">WhatsApp</button></div><div class="links">'+(ow>0?'<button class="lk" onclick="OT.paid('+id+')">Tap Paid if they still owe</button>'+sp:'')+ed+'</div>';
   }else{
@@ -164,21 +175,21 @@ function render(){
   var has=orders.length>0;
   var h='<div class="top"><div class="biz">'+esc(biz||'My Orders')+'</div><button class="gear" onclick="OT.set()" aria-label="Settings">'+GEAR+'</button></div>';
   if(!has){
-    h+='<div class="empty"><h2>No orders yet \uD83D\uDE42</h2><p>Tap + Add Order to add your first one</p></div><button class="add inline" onclick="OT.form()">+ Add Order</button>';
+    h+='<div class="empty">'+ico('todo')+'<h2>No orders yet</h2><p>Tap + Add Order to add your first one</p></div><button class="add inline" onclick="OT.form()">'+ico('plus')+' Add Order</button>';
   }else{
     var owed=0,got=0;orders.forEach(function(o){owed+=owes(o);got+=(+o.paid||0)});
-    h+='<div class="nums"><div class="num"><small>Still owed to you</small><b>'+R(owed)+'</b></div><div class="num"><small>You have been paid</small><b>'+R(got)+'</b></div></div>';
+    h+='<div class="nums"><div class="num"><small>Still owed to you</small><b class="'+(owed>0?'r':'')+'">'+R(owed)+'</b></div><div class="num"><small>You have been paid</small><b class="g">'+R(got)+'</b></div></div>';
     if(owed>0)h+='<button class="pill" onclick="OT.owing()">Who owes me? '+R(owed)+'</button>';
     var cut=new Date();cut.setDate(cut.getDate()-6);cut=new Date(cut.getTime()-cut.getTimezoneOffset()*60000).toISOString().slice(0,10);
     var wk=orders.filter(function(o){return o.ordered>=cut}).length;
     h+='<button class="sum" onclick="OT.cust()"><span>This week: <b>'+wk+'</b> order'+(wk===1?'':'s')+'</span><span><b>'+orders.length+'</b> in total \u2022 My customers \u203A</span></button>';
     var cnt={todo:0,ready:0,done:0};orders.forEach(function(o){cnt[o.status]=(cnt[o.status]||0)+1});
-    h+='<div class="tabs">'+[['todo','\uD83E\uDDFA','To Do'],['ready','\u2705','Ready'],['done','\uD83C\uDF89','Done']].map(function(t){return '<button class="tab'+(tab===t[0]?' on':'')+'" onclick="OT.tab(\''+t[0]+'\')"><span>'+t[1]+'</span>'+t[2]+' <i>'+cnt[t[0]]+'</i></button>'}).join('')+'</div>';
+    h+='<div class="tabs">'+[['todo',ico('todo'),'To Do'],['ready',ico('ready'),'Ready'],['done',ico('done'),'Done']].map(function(t){return '<button class="tab'+(tab===t[0]?' on':'')+'" onclick="OT.tab(\''+t[0]+'\')"><span>'+t[1]+'</span>'+t[2]+' <i>'+cnt[t[0]]+'</i></button>'}).join('')+'</div>';
     var list=orders.filter(function(o){return o.status===tab});
     list=tab==='todo'?list.slice():list.slice().reverse();
-    if(!list.length)h+='<div class="empty" style="margin-top:6px;padding:28px 18px"><p>'+(tab==='todo'?'Nothing to do right now \uD83D\uDE0C':tab==='ready'?'Nothing waiting for collection':'No finished orders yet')+'</p></div>';
+    if(!list.length)h+='<div class="empty" style="margin-top:6px;padding:28px 18px"><p>'+(tab==='todo'?'Nothing to do right now':tab==='ready'?'Nothing waiting for collection':'No finished orders yet')+'</p></div>';
     else h+=list.map(card).join('');
-    h+='<button class="add" onclick="OT.form()">+ Add Order</button>';
+    h+='<button class="add" onclick="OT.form()">'+ico('plus')+' Add Order</button>';
   }
   $('#app').innerHTML=h;
 }
@@ -212,9 +223,9 @@ var OT=window.OT={
     snap=null;$('#toast').classList.remove('on');
   },
   help:function(first){
-    var h='<div class="help"><h2>'+(first===true?'Welcome \uD83D\uDE42':'How it works')+'</h2>';
+    var h='<div class="help"><h2>'+(first===true?'Welcome':'How it works')+'</h2>';
     if(first===true)h+='<label for="wn">What is your business called?</label><input id="wn" maxlength="40" placeholder="e.g. Thandi\u2019s Cakes" value="'+esc(biz)+'">';
-    h+='<ol><li>Add order</li><li>Tap Paid when they pay</li><li>Tap Ready when it\u2019s done</li><li>Tap WhatsApp to tell them</li></ol><div class="p">Save a backup once a week. You\u2019ll find it under the gear \u2699 at the top.</div>';
+    h+='<ol><li>Add order</li><li>Tap Paid when they pay</li><li>Tap Ready when it\u2019s done</li><li>Tap WhatsApp to tell them</li></ol><div class="p">Save a backup once a week. You\u2019ll find it under the gear icon at the top.</div>';
     open(h+'<button class="save" onclick="OT.helpDone('+(first===true)+')">'+(first===true?'Let\u2019s go':'Got it')+'</button></div>');
   },
   helpDone:function(first){
@@ -228,14 +239,14 @@ var OT=window.OT={
     '<div class="sec"><h3>Your business</h3><label for="sb">Business name</label><input id="sb" maxlength="40" value="'+esc(biz)+'"></div>'+
     '<div class="sec"><h3>Payment details (EFT)</h3><div class="p">So customers know where to pay.</div><label for="sbk">Bank</label><input id="sbk" value="'+esc(s.bank)+'" placeholder="e.g. Capitec"><label for="san">Account name</label><input id="san" value="'+esc(s.accName)+'"><label for="sac">Account number</label><input id="sac" type="tel" inputmode="numeric" value="'+esc(s.acc)+'"><label for="sbr">Branch code</label><input id="sbr" type="tel" inputmode="numeric" value="'+esc(s.branch)+'"><label class="chk"><input type="checkbox" id="son"'+(s.on===false?'':' checked')+'>Add these to my WhatsApp messages when money is owed</label></div>'+
     '<div class="sec"><h3>Backup</h3><div class="p">Save a backup once a week.'+(s.backup?' Last backup: '+fd(s.backup)+'.':' You haven\u2019t made one yet.')+'</div><div class="two"><button onclick="OT.exp()">Download my orders</button><button onclick="OT.impPick()">Bring my orders back</button></div></div>'+
-    '<div class="sec"><h3>On your phone</h3>'+(standalone?'<div class="p">Installed \u2713</div>':deferred?'<button class="wide" onclick="OT.install()">Install on my phone</button>':ios?'<div class="p">Tap Share &gt; Add to Home Screen &gt; Add</div>':'<div class="p">Open your browser menu and choose Add to Home screen.</div>')+'<button class="wide" onclick="OT.help()">How it works</button></div>'+
+    '<div class="sec"><h3>On your phone</h3>'+(standalone?'<div class="p">Installed</div>':deferred?'<button class="wide" onclick="OT.install()">Install on my phone</button>':ios?'<div class="p">Tap Share &gt; Add to Home Screen &gt; Add</div>':'<div class="p">Open your browser menu and choose Add to Home screen.</div>')+'<button class="wide" onclick="OT.help()">How it works</button></div>'+
     '<button class="save" onclick="OT.saveSet()">Save settings</button>';
     open(h);
   },
   saveSet:function(){
     biz=$('#sb').value.trim();put(K.b,biz);
     set.bank=$('#sbk').value.trim();set.accName=$('#san').value.trim();set.acc=$('#sac').value.trim();set.branch=$('#sbr').value.trim();set.on=$('#son').checked;
-    put(K.s,JSON.stringify(set));close();render();toast('Settings saved \u2713');
+    put(K.s,JSON.stringify(set));close();render();toast('Settings saved');
   },
   install:function(){if(!deferred)return;deferred.prompt();deferred.userChoice.then(function(){deferred=null;close()})},
   form:function(id,pre){
@@ -283,21 +294,21 @@ var OT=window.OT={
     var o=editId?get(editId):null;
     if(o){for(var k in d)o[k]=d[k]}
     else{d.id=Date.now().toString(36)+Math.random().toString(36).slice(2,6);d.ordered=today();orders.push(d)}
-    tab=d.status;save();close();render();window.scrollTo(0,0);buzz();toast('Order saved \u2713');
+    tab=d.status;save();close();render();window.scrollTo(0,0);buzz();toast('Order saved');
   },
-  paid:function(id){act(id,'Marked as paid \u2713',function(o){o.paid=+o.price||0})},
-  st:function(id,s){tab=s;act(id,'Moved to Ready \u2705',function(o){o.status=s})},
+  paid:function(id){act(id,'Marked as paid',function(o){o.paid=+o.price||0})},
+  st:function(id,s){tab=s;act(id,'Moved to Ready',function(o){o.status=s})},
   collect:function(id){
     var o=get(id);if(!o)return;
     if(owes(o)>0&&!confirm(o.name+' still owes '+R(owes(o))+'. Mark as collected anyway?'))return;
-    tab='done';act(id,'Moved to Done \uD83C\uDF89',function(o){o.status='done'});
+    tab='done';act(id,'Moved to Done',function(o){o.status='done'});
   },
   del:function(id){var o=get(id);if(o&&confirm('Delete the order for '+o.name+'?')){orders=orders.filter(function(x){return x.id!==id});save();render()}},
   wa:function(id){
     var o=get(id);if(!o)return;var ow=owes(o),msg;
     if(o.status==='ready')msg='Hi '+o.name+', good news! Your order for '+o.item+' is ready for collection! '+(ow>0?'Still owes: '+R(ow)+eft(o):'Paid in full');
     else if(o.status==='todo')msg='Hi '+o.name+', just confirming your order for '+o.item+' - '+R(+o.price||0)+'.'+(o.due?' Due '+fd(o.due)+'.':'')+' Thank you!'+(ow>0?eft(o):'');
-    else msg='Hi '+o.name+', thank you for your order! \uD83D\uDE0A';
+    else msg='Hi '+o.name+', thank you for your order!';
     send(o,msg);
   },
   remind:function(id){
@@ -313,7 +324,7 @@ var OT=window.OT={
     else h+='<div class="cl">'+custList.map(function(c,i){return '<div><b style="font-size:20px">'+esc(c.name)+'</b><br><span class="meta" style="margin:0">'+c.n+' order'+(c.n===1?'':'s')+' \u2022 '+R(c.tot)+' in total</span>'+(c.owed>0?'<br><b style="color:var(--red)">Owes '+R(c.owed)+'</b>':'')+'<div class="cb"><button onclick="OT.hi('+i+')">WhatsApp</button><button onclick="OT.newFor('+i+')">New order</button></div></div>'}).join('')+'</div>';
     open(h);
   },
-  hi:function(i){var c=custList[i];if(c)send(c,'Hi '+c.name+' \uD83D\uDE42')},
+  hi:function(i){var c=custList[i];if(c)send(c,'Hi '+c.name+', how are you?')},
   newFor:function(i){var c=custList[i];if(c)OT.form(null,{name:c.name,phone:c.phone})},
   owing:function(){
     var l=orders.filter(function(o){return owes(o)>0});
@@ -322,7 +333,7 @@ var OT=window.OT={
   exp:function(){
     var b=new Blob([JSON.stringify({biz:biz,orders:orders},null,1)],{type:'application/json'});
     var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='my-orders-'+today()+'.json';document.body.appendChild(a);a.click();a.remove();
-    set.backup=today();put(K.s,JSON.stringify(set));toast('Backup downloaded \u2713');
+    set.backup=today();put(K.s,JSON.stringify(set));toast('Backup downloaded');
   },
   impPick:function(){$('#imp').click()}
 };
